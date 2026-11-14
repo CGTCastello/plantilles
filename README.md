@@ -1,4 +1,4 @@
-# Fes la teua imatge · CGT Castelló
+# Generador de plantilles · CGT Castelló
 
 Editor web de plantilles gràfiques de CGT Castelló. Qualsevol persona del sindicat pot fer, des del mòbil o l'ordinador, una peça amb el sistema de disseny del sindicat: nota de premsa, convocatòria, cita, dada, comunicat, carrusel, imatge web o miniatura per a enllaços.
 
