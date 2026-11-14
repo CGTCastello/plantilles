@@ -151,7 +151,7 @@
         <label class="f" data-for="kicker">Context (sector, lloc, campanya)<input type="text" data-k="kicker" maxlength="60"></label>
         <label class="f" data-for="xifra">Xifra<input type="text" data-k="xifra" maxlength="10"></label>
         <label class="f" data-for="titular"><span id="titLbl">Titular</span><textarea data-k="titular" maxlength="160"></textarea></label>
-        <label class="f" data-for="cos">Text de suport<textarea data-k="cos" maxlength="320"></textarea></label>
+        <label class="f" data-for="cos">Text de suport (pots fer paràgrafs amb Intro)<textarea data-k="cos" maxlength="1500"></textarea></label>
         <div class="row2" data-for="bloc">
           <label class="f">Dia<input type="text" data-k="dia" maxlength="14"></label>
           <label class="f">Hora<input type="text" data-k="hora" maxlength="10"></label>
@@ -529,13 +529,19 @@ RENDER.comunicat=function(tx,warn){
   const kh=kicker(tx.kicker,60,y,P.meta,24,W-120);if(kh)y+=kh+28;
   const f=peuBand();R.footTop=f.top;
   const bottom=noteAt(f.top-50-(R.n>1&&R.idx===0?90:0),false,40,warn);
-  let cosLines=[],cs=31;
-  if((tx.cos||'').trim()){for(cs=31;cs>=24;cs--){cosLines=wrapSans(tx.cos,cs,700,W-120);if(cosLines.length<=6)break;}}
-  const cosH=cosLines.length?cap(SANS)*cs+(cosLines.length-1)*cs*1.35+40:0;
-  const r=fit(tokenize(tx.titular),W-120,bottom-y-cosH,110,60,1.0,4);
-  if(r){drawLines(r.lines,60,y,r.s,1.0,P.onBlack,P.hiBlack);y+=r.h+40;if(!r.ok)warn.push("El titular és massa llarg: escurça'l o retalla el text de suport.");}
-  if(cosLines.length){setF(cs,700,SANS);ctx.fillStyle=P.onBlack;cosLines.forEach((l,i)=>ctx.fillText(l,60,y+cap(SANS)*cs+i*cs*1.35));
-    if(cosLines.length>6)warn.push('El text de suport és massa llarg: una o dues frases com a màxim.');}
+  // Text de suport: paràgrafs separats per línies en blanc. S'ajusta a l'espai que deixa el titular.
+  const paras=(tx.cos||'').replace(/\*/g,'').split(/\n\s*\n|\n/).map(t=>t.trim()).filter(Boolean);
+  const cosLay=cs=>{const ls=[];paras.forEach((t,i)=>{wrapSans(t,cs,700,W-120).forEach(l=>ls.push(l));if(i<paras.length-1)ls.push(null);});
+    const n=ls.filter(l=>l!==null).length,gaps=ls.length-n;
+    return {cs,ls,h:n?cap(SANS)*cs+(n-1)*cs*1.35+gaps*cs*.6+40:0};};
+  const tit=tokenize(tx.titular),avail=bottom-y;let r=null,cos=cosLay(31);
+  // 1r: titular gran (≥80) i text de suport de 32 a 22; 2n: titular més menut.
+  search:for(const tMin of [80,56])for(let cs=32;cs>=22;cs--){cos=cosLay(cs);
+    const t=fit(tit,W-120,avail-cos.h,110,tMin,1.0,4);if(t&&t.ok){r=t;break search;}}
+  if(!r){cos=cosLay(22);r=fit(tit,W-120,Math.max(0,avail-cos.h),110,56,1.0,4);}
+  if(r){drawLines(r.lines,60,y,r.s,1.0,P.onBlack,P.hiBlack);y+=r.h+40;if(!r.ok)warn.push("No hi cap tot: escurça el titular o el text de suport.");}
+  if(cos.ls.length){setF(cos.cs,700,SANS);ctx.fillStyle=P.onBlack;let by=y+cap(SANS)*cos.cs;
+    cos.ls.forEach(l=>{if(l===null){by+=cos.cs*.6;return;}if(by<=bottom)ctx.fillText(l,60,by);by+=cos.cs*1.35;});}
 };
 RENDER.portada=function(tx,warn){
   const {H,T,P,lang}=R;ctx.fillStyle=P.black;ctx.fillRect(0,0,W,H);
