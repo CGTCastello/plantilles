@@ -41,6 +41,7 @@ fonts/            Anton i Open Sans (SIL OFL 1.1) + fonts.css
 vendor/           jsPDF 2.5.1 i JSZip 3.10.1 (MIT)
 .nojekyll         Perquè GitHub Pages servisca els arxius tal qual
 CLAUDE.md         Context per a treballar el codi amb Claude Code
+og-image.png      Imatge que es veu en compartir l'enllaç (1200×630)
 ```
 
 ## Sistema de disseny
