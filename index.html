@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fes la teua imatge · CGT Castelló</title>
+<meta name="description" content="Editor de plantilles gràfiques de CGT Castelló: cartells, convocatòries, carrusels i imatges per a xarxes amb el sistema de disseny del sindicat.">
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root{--roig:#E42127;--negre:#111111;--groc:#E9E84C;--blanc:#fff;--paper:#EDEBE7;--gris:#5F5E59}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Open Sans",Arial,sans-serif;background:var(--paper);color:var(--negre)}
+  header{background:var(--negre);color:var(--blanc);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  header h1{font-family:Anton,Impact,sans-serif;font-weight:400;text-transform:uppercase;font-size:24px;line-height:1;margin:0;letter-spacing:.02em}
+  header h1 span{background:var(--groc);color:var(--negre);padding:2px 8px;margin-left:6px}
+  header img{height:44px;display:block;background:#fff;padding:4px 6px}
+  .app{display:grid;gap:18px;padding:16px;max-width:1160px;margin:0 auto}
+  @media(min-width:900px){.app{grid-template-columns:minmax(0,1fr) 410px;align-items:start}.preview{position:sticky;top:16px}}
+  .stage{display:flex;justify-content:center;background:#d8d5cf;padding:12px}
+  canvas#cv{display:block;max-width:100%;max-height:70vh;width:auto;height:auto;background:#fff;touch-action:manipulation}
+  canvas#cv.blurring{outline:6px solid var(--groc);cursor:crosshair}
+  .slides{display:flex;gap:6px;overflow-x:auto;padding:10px 0 2px}
+  .slides button{flex:0 0 auto;font-family:Anton,Impact,sans-serif;text-transform:uppercase;font-size:15px;border:3px solid var(--negre);background:#fff;color:var(--negre);padding:6px 10px;cursor:pointer;border-radius:0}
+  .slides button[aria-current="true"]{background:var(--negre);color:var(--groc)}
+  .slides .add{background:var(--groc)}
+  .slidetools{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .warn{margin:8px 0 0;font-weight:700;font-size:14px}
+  .warn p{margin:6px 0;padding:8px 10px;background:var(--negre);color:var(--groc)}
+  .btn{font-family:Anton,Impact,sans-serif;text-transform:uppercase;letter-spacing:.03em;font-size:18px;border:3px solid var(--negre);background:var(--blanc);color:var(--negre);padding:10px 14px;cursor:pointer;border-radius:0}
+  .btn.primary{background:var(--groc);font-size:22px;width:100%;padding:14px}
+  .btn:disabled{opacity:.4;cursor:default}
+  .btn.small{font-size:15px;padding:6px 10px}
+  .controls{display:flex;flex-direction:column;gap:14px}
+  fieldset{border:0;margin:0;padding:14px;background:var(--blanc)}
+  legend{font-family:Anton,Impact,sans-serif;text-transform:uppercase;font-size:20px;letter-spacing:.02em;padding:0;margin-bottom:8px;float:left;width:100%}
+  legend+*{clear:both}
+  h3{font-family:Anton,Impact,sans-serif;font-weight:400;text-transform:uppercase;font-size:15px;margin:14px 0 6px;letter-spacing:.03em}
+  .seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .seg3{grid-template-columns:1fr 1fr 1fr}
+  .seg button{font-family:Anton,Impact,sans-serif;text-transform:uppercase;font-size:16px;line-height:1.1;border:3px solid var(--negre);background:var(--blanc);color:var(--negre);padding:9px 6px;cursor:pointer;border-radius:0}
+  .seg button[aria-pressed="true"]{background:var(--negre);color:var(--groc)}
+  .seg button:disabled{opacity:.3;cursor:default}
+  .logos button{display:flex;align-items:center;justify-content:center;gap:6px}
+  .logos i{display:inline-block;width:14px;height:14px;border:2px solid var(--negre)}
+  label.f{display:block;margin-top:10px;font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+  label.f input[type=text],label.f textarea{display:block;width:100%;margin-top:4px;font:400 16px "Open Sans",Arial,sans-serif;border:2px solid var(--negre);border-radius:0;padding:9px 10px;background:#fff;color:var(--negre)}
+  label.f input::placeholder,label.f textarea::placeholder{color:#9a978f}
+  textarea{resize:vertical;min-height:80px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .row2 .wide{grid-column:1 / -1}
+  .rowF{display:grid;grid-template-columns:110px 1fr;gap:8px}
+  .hint{font-size:13px;color:var(--gris);margin:8px 0 0;line-height:1.4}
+  .hint b{color:var(--negre)}
+  .hint code{background:var(--paper);padding:1px 4px;font-size:13px}
+  input[type=file]{font:700 14px "Open Sans",Arial,sans-serif;width:100%;margin-top:4px}
+  input[type=range]{width:100%;accent-color:var(--negre)}
+  .sl{display:grid;grid-template-columns:96px 1fr;align-items:center;gap:8px;font-size:13px;font-weight:700;margin-top:8px}
+  .blurbar{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .blurbar .btn[aria-pressed="true"]{background:var(--groc)}
+  .check{display:flex;gap:8px;align-items:center;font-weight:700;font-size:14px;margin-top:8px}
+  .check input{width:20px;height:20px;accent-color:var(--negre)}
+  .langtag{display:inline-block;background:var(--negre);color:var(--groc);font-family:Anton,Impact,sans-serif;font-size:12px;padding:1px 5px;margin-left:6px;letter-spacing:.04em;vertical-align:1px}
+  .hide{display:none!important}
+  footer{max-width:1160px;margin:0 auto;padding:0 16px 30px;font-size:13px;color:var(--gris);line-height:1.5}
+  .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--negre);color:var(--groc);font-weight:800;padding:10px 16px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;z-index:9}
+  .toast.on{opacity:1}
+  .linkbox{display:block;width:100%;margin-top:8px;font:700 14px "Open Sans",Arial,sans-serif;border:2px solid var(--negre);padding:8px;background:var(--paper);word-break:break-all}
+</style>
+</head>
+<body>
+<header>
+  <h1>Fes la teua imatge<span>beta</span></h1>
+  <img id="hdrLogo" alt="CGT Castelló">
+</header>
+
+<main class="app">
+  <section class="preview">
+    <div class="stage"><canvas id="cv" width="1080" height="1350" aria-label="Previsualització de la imatge"></canvas></div>
+    <div class="slides" id="slides" aria-label="Diapositives"></div>
+    <div class="slidetools" id="slideTools">
+      <button class="btn small" id="slLeft" title="Mou a l'esquerra">←</button>
+      <button class="btn small" id="slRight" title="Mou a la dreta">→</button>
+      <button class="btn small" id="slDup">Duplica</button>
+      <button class="btn small" id="slDel">Esborra la diapositiva</button>
+    </div>
+    <div class="warn" id="warn" aria-live="polite"></div>
+    <h3>Arxiu</h3>
+    <div class="seg seg3" id="outSeg">
+      <button data-out="png" aria-pressed="true">PNG</button>
+      <button data-out="jpg" aria-pressed="false">JPG</button>
+      <button data-out="pdf" aria-pressed="false">PDF</button>
+    </div>
+    <p class="hint" id="outHint"></p>
+    <button class="btn primary" id="dl" style="margin-top:10px">Descarrega</button>
+  </section>
+
+  <section class="controls">
+    <fieldset>
+      <legend>1 · Plantilla</legend>
+      <div class="seg" id="tplSeg"></div>
+      <div id="fmtBox">
+        <h3>Format</h3>
+        <div class="seg" id="fmtSeg">
+          <button data-fmt="post">Post 1080×1350</button>
+          <button data-fmt="story">Story 1080×1920</button>
+          <button data-fmt="a4">Cartell A4</button>
+          <button data-fmt="a3">Cartell A3</button>
+        </div>
+      </div>
+      <p class="hint" id="fmtHint"></p>
+    </fieldset>
+
+    <fieldset id="fsFoto">
+      <legend>2 · Foto</legend>
+      <input type="file" id="file" accept="image/*">
+      <p class="hint">La foto no ix del teu dispositiu: tot es fa al navegador.</p>
+      <div id="photoCtl" class="hide">
+        <div class="sl"><span>Zoom</span><input type="range" id="zoom" min="1" max="3" step="0.01" value="1"></div>
+        <div class="sl"><span>Horitzontal</span><input type="range" id="fx" min="0" max="1" step="0.01" value="0.5"></div>
+        <div class="sl"><span>Vertical</span><input type="range" id="fy" min="0" max="1" step="0.01" value="0.5"></div>
+        <div class="blurbar">
+          <button class="btn small" id="blurMode" aria-pressed="false">Difuminar cares</button>
+          <button class="btn small" id="blurUndo">Desfés</button>
+          <button class="btn small" id="blurClear">Esborra-ho tot</button>
+        </div>
+        <div class="sl"><span>Mida</span><input type="range" id="blurR" min="30" max="220" step="1" value="80"></div>
+        <p class="hint" id="blurHint"></p>
+        <button class="btn small" id="rmPhoto" style="margin-top:8px">Lleva la foto</button>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>3 · Textos</legend>
+      <h3 style="margin-top:0">Idioma de la peça</h3>
+      <div class="seg seg3" id="langSeg">
+        <button data-lang="va">Valencià</button>
+        <button data-lang="es">Castellano</button>
+        <button data-lang="both">Les dues</button>
+      </div>
+      <div id="editLangBox" class="hide">
+        <h3>Estàs escrivint en</h3>
+        <div class="seg" id="editSeg">
+          <button data-edit="va">Valencià</button>
+          <button data-edit="es">Castellano</button>
+        </div>
+        <p class="hint">Es descarrega una peça en cada idioma: primer valencià, després castellano.</p>
+      </div>
+      <div id="fields">
+        <label class="f" data-for="etiqueta">Etiqueta<input type="text" data-k="etiqueta" maxlength="32"></label>
+        <label class="f" data-for="kicker">Context (sector, lloc, campanya)<input type="text" data-k="kicker" maxlength="60"></label>
+        <label class="f" data-for="xifra">Xifra<input type="text" data-k="xifra" maxlength="10"></label>
+        <label class="f" data-for="titular"><span id="titLbl">Titular</span><textarea data-k="titular" maxlength="160"></textarea></label>
+        <label class="f" data-for="cos">Text de suport<textarea data-k="cos" maxlength="320"></textarea></label>
+        <div class="row2" data-for="bloc">
+          <label class="f">Dia<input type="text" data-k="dia" maxlength="14"></label>
+          <label class="f">Hora<input type="text" data-k="hora" maxlength="10"></label>
+          <label class="f wide">Lloc<input type="text" data-k="lloc" maxlength="40"></label>
+        </div>
+        <div data-for="files">
+          <div class="rowF"><label class="f">Fila 1<input type="text" data-k="f1g" maxlength="10"></label><label class="f">Frase<input type="text" data-k="f1t" maxlength="90"></label></div>
+          <div class="rowF"><label class="f">Fila 2<input type="text" data-k="f2g" maxlength="10"></label><label class="f">Frase<input type="text" data-k="f2t" maxlength="90"></label></div>
+          <div class="rowF"><label class="f">Fila 3<input type="text" data-k="f3g" maxlength="10"></label><label class="f">Frase<input type="text" data-k="f3t" maxlength="90"></label></div>
+        </div>
+        <label class="f" data-for="font">Font de la dada<input type="text" data-k="font" maxlength="90"></label>
+      </div>
+      <div id="noteBox">
+        <label class="check" style="margin-top:14px"><input type="checkbox" id="noteOn"> Afegeix un requadre de text (aclariments, avisos…)</label>
+        <label class="f hide" id="noteField">Text del requadre<textarea data-k="nota" maxlength="300" placeholder="Per exemple: hi haurà servei d'acollida per a criatures. Porta el DNI."></textarea></label>
+      </div>
+      <p class="hint">Posa <b>*entre asteriscs*</b> les paraules que vols destacar. Amb Intro forces un salt de línia.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>4 · Acabat</legend>
+      <h3 style="margin-top:0">Logo</h3>
+      <div class="seg seg3 logos" id="logoSeg">
+        <button data-logo="normal"><i style="background:#E42127"></i>Normal</button>
+        <button data-logo="morat"><i style="background:#6B2D8F"></i>Morat</button>
+        <button data-logo="verd"><i style="background:#009A44"></i>Verd</button>
+        <button data-logo="orgull"><i style="background:linear-gradient(#E40303 0 17%,#FF8C00 0 33%,#FFED00 0 50%,#008026 0 67%,#004DFF 0 83%,#750787 0)"></i>Orgull</button>
+        <button data-logo="trans"><i style="background:linear-gradient(#5BCEFA 0 20%,#F5A9B8 0 40%,#fff 0 60%,#F5A9B8 0 80%,#5BCEFA 0)"></i>Trans</button>
+      </div>
+      <p class="hint" id="logoHint">Morat: 8M, 25N. Verd: ecologisme, territori, educació pública. Orgull i trans: 28J, 31M.</p>
+      <label class="check"><input type="checkbox" id="bn"> Versió per a fotocopiar (blanc i negre)</label>
+      <label class="check"><input type="checkbox" id="grain"> Gra de paper</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>5 · Comparteix la plantilla</legend>
+      <p class="hint" style="margin-top:0">Un enllaç que obri directament aquesta plantilla i aquest format. Ideal per a enviar pel grup: «feu el vostre cartell amb este enllaç».</p>
+      <label class="check"><input type="checkbox" id="linkTexts"> Inclou els textos que has escrit</label>
+      <button class="btn small" id="copyLink" style="margin-top:10px">Copia l'enllaç</button>
+      <div class="linkbox" id="linkBox"></div>
+      <p class="hint" id="linkHint"></p>
+    </fieldset>
+  </section>
+</main>
+
+<footer>
+  Editor de plantilles de CGT Castelló, fet amb el sistema de disseny del sindicat (Anton + Open Sans, quatre tintes). Abans de publicar: cares difuminades, text en valencià i dades amb font. <a href="https://cgtcastello.org">cgtcastello.org</a>
+</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// =============== LOGOS ===============
+const K='#040606';
+const LOGO_BODY=[
+['M 77.675781 174.5 C 72.9375 174.5 69.664062 170.550781 69.664062 165.816406 L 69.664062 165.734375 C 69.664062 161 73.019531 157.128906 77.675781 157.128906 C 80.4375 157.128906 82.609375 158.316406 84.742188 160.25 L 88.609375 155.789062 C 86.042969 153.261719 82.925781 151.523438 77.714844 151.523438 C 69.226562 151.523438 63.308594 157.957031 63.308594 165.816406 L 63.308594 165.894531 C 63.308594 173.828125 69.347656 180.105469 77.476562 180.105469 C 82.808594 180.105469 85.964844 178.207031 88.808594 175.167969 L 84.941406 171.261719 C 82.769531 173.234375 80.832031 174.5 77.675781 174.5',K],
+['M 100.21875 168.0625 L 103.890625 159.105469 L 107.5625 168.0625 Z M 101.167969 151.800781 L 89.324219 179.628906 L 95.523438 179.628906 L 98.046875 173.433594 L 109.734375 173.433594 L 112.257812 179.628906 L 118.613281 179.628906 L 106.769531 151.800781 Z',K],
+['M 131.722656 163.089844 C 126.949219 161.867188 125.761719 161.273438 125.761719 159.460938 L 125.761719 159.378906 C 125.761719 158.039062 126.984375 156.972656 129.316406 156.972656 C 131.644531 156.972656 134.050781 158 136.5 159.695312 L 139.65625 155.117188 C 136.855469 152.867188 133.421875 151.605469 129.394531 151.605469 C 123.75 151.605469 119.722656 154.921875 119.722656 159.933594 L 119.722656 160.011719 C 119.722656 165.5 123.316406 167.039062 128.882812 168.460938 C 133.5 169.644531 134.445312 170.433594 134.445312 171.972656 L 134.445312 172.050781 C 134.445312 173.671875 132.949219 174.65625 130.460938 174.65625 C 127.304688 174.65625 124.699219 173.355469 122.210938 171.300781 L 118.617188 175.605469 C 121.933594 178.566406 126.160156 180.027344 130.34375 180.027344 C 136.300781 180.027344 140.488281 176.945312 140.488281 171.457031 L 140.488281 171.378906 C 140.488281 166.566406 137.328125 164.550781 131.722656 163.089844',K],
+['M 141.238281 157.605469 L 149.648438 157.605469 L 149.648438 179.628906 L 155.726562 179.628906 L 155.726562 157.605469 L 164.132812 157.605469 L 164.132812 152 L 141.238281 152 Z',K],
+['M 172.859375 168.421875 L 185.886719 168.421875 L 185.886719 163.011719 L 172.859375 163.011719 L 172.859375 157.40625 L 187.664062 157.40625 L 187.664062 152 L 166.824219 152 L 166.824219 179.628906 L 187.859375 179.628906 L 187.859375 174.222656 L 172.859375 174.222656 Z',K],
+['M 197.378906 152 L 191.296875 152 L 191.296875 179.628906 L 211.152344 179.628906 L 211.152344 174.105469 L 197.378906 174.105469 Z',K],
+['M 219.839844 152 L 213.761719 152 L 213.761719 179.628906 L 233.617188 179.628906 L 233.617188 174.105469 L 219.839844 174.105469 Z',K],
+['M 255.605469 145.484375 L 248.769531 145.394531 L 245.660156 149.433594 L 250.238281 149.433594 Z',K],
+['M 256.4375 165.894531 C 256.4375 170.628906 253.042969 174.5 248.148438 174.5 C 243.253906 174.5 239.777344 170.550781 239.777344 165.816406 L 239.777344 165.734375 C 239.777344 161 243.175781 157.128906 248.066406 157.128906 C 252.960938 157.128906 256.4375 161.078125 256.4375 165.816406 Z M 248.148438 151.523438 C 239.621094 151.523438 233.421875 157.960938 233.421875 165.816406 L 233.421875 165.894531 C 233.421875 173.75 239.542969 180.105469 248.066406 180.105469 C 256.59375 180.105469 262.792969 173.667969 262.792969 165.816406 L 262.792969 165.734375 C 262.792969 157.882812 256.675781 151.523438 248.148438 151.523438',K],
+['M 37.121094 138.109375 L 37.121094 30.601562 L 286.996094 30.601562 Z M 34.132812 141.101562 L 291.96875 141.101562 L 291.96875 27.613281 L 34.132812 27.613281 Z',K],
+['M 63.824219 89 L 63.824219 88.804688 C 63.824219 69.015625 79.054688 53.492188 99.621094 53.492188 C 113.496094 53.492188 122.421875 59.3125 128.4375 67.65625 L 114.273438 78.621094 C 110.390625 73.769531 105.929688 70.664062 99.429688 70.664062 C 89.921875 70.664062 83.226562 78.714844 83.226562 88.613281 L 83.226562 88.804688 C 83.226562 98.992188 89.921875 106.949219 99.429688 106.949219 C 106.511719 106.949219 110.683594 103.648438 114.757812 98.703125 L 128.921875 108.792969 C 122.519531 117.621094 113.882812 124.121094 98.847656 124.121094 C 79.441406 124.121094 63.824219 109.277344 63.824219 89','#fff'],
+['M 132.707031 89 L 132.707031 88.804688 C 132.707031 69.015625 148.230469 53.492188 169.28125 53.492188 C 181.214844 53.492188 189.65625 57.179688 196.835938 63.386719 L 185.773438 76.679688 C 180.921875 72.605469 176.074219 70.277344 169.378906 70.277344 C 159.578125 70.277344 152.011719 78.523438 152.011719 88.902344 L 152.011719 89.097656 C 152.011719 100.058594 159.675781 107.917969 170.445312 107.917969 C 175.003906 107.917969 178.496094 106.949219 181.3125 105.105469 L 181.3125 96.859375 L 167.921875 96.859375 L 167.921875 83.082031 L 199.164062 83.082031 L 199.164062 113.640625 C 191.984375 119.558594 181.992188 124.121094 169.667969 124.121094 C 148.519531 124.121094 132.707031 109.566406 132.707031 89','#fff'],
+['M 225.261719 71.34375 L 204.886719 71.34375 L 204.886719 54.851562 L 264.457031 54.851562 L 264.457031 71.34375 L 244.082031 71.34375 L 244.082031 122.761719 L 225.261719 122.761719 Z','#fff']
+];
+
+const LOGO_HEAD='<svg xmlns="http://www.w3.org/2000/svg" width="258.59" height="152.94" viewBox="34.23 27.46 258.59 152.94">';
+const BOX={x:35.32,y:28.6,w:256.48,h:111.76};
+function stripes(cols){const h=BOX.h/cols.length;return '<defs><clipPath id="cx"><rect x="'+BOX.x+'" y="'+BOX.y+'" width="'+BOX.w+'" height="'+BOX.h+'"/></clipPath></defs><g clip-path="url(#cx)">'+cols.map((c,i)=>'<rect x="'+BOX.x+'" y="'+(BOX.y+i*h).toFixed(3)+'" width="'+BOX.w+'" height="'+(h+0.4).toFixed(3)+'" fill="'+c+'"/>').join('')+'</g>';}
+const solid=c=>'<rect x="'+BOX.x+'" y="'+BOX.y+'" width="'+BOX.w+'" height="'+BOX.h+'" fill="'+c+'"/>';
+const TRI={
+  color:solid('#E42127'),
+  negre:'',
+  trama:'<defs><pattern id="tr" patternUnits="userSpaceOnUse" width="4.5" height="4.5" patternTransform="rotate(45)"><circle cx="2.25" cy="2.25" r="1.4" fill="#060606"/></pattern></defs>'+solid('url(#tr)'),
+  morat:solid('#6B2D8F'),
+  verd:solid('#009A44'),
+  orgull:stripes(['#E40303','#FF8C00','#FFED00','#008026','#004DFF','#750787']),
+  trans:stripes(['#5BCEFA','#F5A9B8','#FFFFFF','#F5A9B8','#5BCEFA'])
+};
+const STROKED={trama:1,trans:1};// «CGT» amb vora negra
+function logoSVG(v){
+  const body=LOGO_BODY.map(p=>'<path fill="'+p[1]+'"'+(p[1]==='#fff'&&STROKED[v]?' stroke="#060606" stroke-width="1.6" paint-order="stroke"':'')+' d="'+p[0]+'"/>').join('');
+  return LOGO_HEAD+TRI[v]+body+'</svg>';
+}
+const svgURI=s=>'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s);
+const LOGO_RATIO=258.59/152.94;
+const LOGOS={};
+function loadImg(src){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=src;});}
+
+// =============== PLANTILLES ===============
+const C={roig:'#E42127',negre:'#111111',groc:'#E9E84C',blanc:'#FFFFFF',meta:'#BDBDBD',filet:'#333333',web:'#5F5E59',linia:'#E4E2DD'};
+const TPL={
+  nota:{name:'Nota de premsa',photo:true,fields:['etiqueta','kicker','titular'],titLbl:'Titular',
+    va:{etiqueta:'Nota de premsa',kicker:'CGT Castelló · Comunicat',titular:'Bombers forestals denuncien la *precarietat*'},
+    es:{etiqueta:'Nota de prensa',kicker:'CGT Castelló · Comunicado',titular:'Los bomberos forestales denuncian la *precariedad*'}},
+  conv:{name:'Convocatòria',photo:true,fields:['etiqueta','kicker','titular','bloc'],titLbl:'Titular (dues o tres paraules)',
+    va:{etiqueta:'Convocatòria',kicker:'Sector del metall',titular:'Assemblea *sectorial*',dia:'27 nov',hora:'19:00',lloc:'Local de CGT Castelló'},
+    es:{etiqueta:'Convocatoria',kicker:'Sector del metal',titular:'Asamblea *sectorial*',dia:'27 nov',hora:'19:00',lloc:'Local de CGT Castelló'}},
+  cita:{name:'Cita o lema',fields:['kicker','titular'],titLbl:'Lema o cita',
+    va:{kicker:'— Assemblea de CGT Castelló',titular:'Les vagues les guanya *gent normal* fent coses normals'},
+    es:{kicker:'— Asamblea de CGT Castelló',titular:'Las huelgas las gana *gente normal* haciendo cosas normales'}},
+  dada:{name:'La dada',fields:['etiqueta','kicker','xifra','titular','font'],titLbl:'Frase sota la xifra',
+    va:{etiqueta:'La dada',kicker:'Habitatge · Castelló',xifra:'+59%',titular:'Ha pujat el lloguer real per m²',font:"Font: argumentari de la vaga general per l'habitatge"},
+    es:{etiqueta:'El dato',kicker:'Vivienda · Castelló',xifra:'+59%',titular:'Ha subido el alquiler real por m²',font:'Fuente: argumentario de la huelga general por la vivienda'}},
+  comunicat:{name:'Comunicat sense foto',fields:['etiqueta','kicker','titular','cos'],titLbl:'Titular',
+    va:{etiqueta:'Comunicat',kicker:'CGT Castelló',titular:'Escriu ací el *titular* del comunicat',cos:'Una o dues frases de suport: què ha passat i què proposem.'},
+    es:{etiqueta:'Comunicado',kicker:'CGT Castelló',titular:'Escribe aquí el *titular* del comunicado',cos:'Una o dos frases de apoyo: qué ha pasado y qué proponemos.'}},
+  portada:{name:'Portada carrusel',photo:true,fields:['etiqueta','titular'],titLbl:'Titular (en caixes; la línia amb *paraula destacada* va en roig)',
+    va:{etiqueta:'Vaga general · 11N',titular:"L'11N no és el *final*"},
+    es:{etiqueta:'Huelga general · 11N',titular:'El 11N no es el *final*'}},
+  balanc:{name:'Balanç (files)',fields:['kicker','titular','files'],titLbl:'Titular',
+    va:{kicker:'Balanç de la vaga',titular:"L'11N, Castelló es va aturar",f1g:'Piquets',f1t:"al Mercat d'Abastos, a la UJI i a Autobuses Mediterráneo",f2g:'',f2t:'',f3g:'',f3t:''},
+    es:{kicker:'Balance de la huelga',titular:'El 11N, Castelló se paró',f1g:'Piquetes',f1t:"en el Mercat d'Abastos, en la UJI y en Autobuses Mediterráneo",f2g:'',f2t:'',f3g:'',f3t:''}},
+  web:{name:'Imatge web',photo:true,fixed:'web',fields:['etiqueta'],
+    va:{etiqueta:'Nota de premsa'},es:{etiqueta:'Nota de prensa'}},
+  og:{name:'Miniatura enllaç',photo:true,fixed:'og',fields:['etiqueta','titular'],titLbl:'Titular curt (dues línies com a màxim)',
+    va:{etiqueta:'Nota de premsa',titular:'Bombers forestals denuncien la *precarietat*'},
+    es:{etiqueta:'Nota de prensa',titular:'Los bomberos forestales denuncian la *precariedad*'}}
+};
+const TPL_ORDER=['nota','conv','cita','dada','comunicat','portada','balanc','web','og'];
+const STR={va:{dia:'Dia',hora:'Hora',lloc:'Lloc',llisca:'Llisca →'},es:{dia:'Día',hora:'Hora',lloc:'Lugar',llisca:'Desliza →'}};
+const FMT={
+  post:{W:1080,H:1350,T:0,px:1080,label:'Post'},
+  story:{W:1080,H:1920,T:250,px:1080,label:'Story'},
+  a4:{W:1080,H:Math.round(1080*297/210),T:0,px:2480,label:'A4',mm:[210,297]},// 300 ppp
+  a3:{W:1080,H:Math.round(1080*420/297),T:0,px:2900,label:'A3',mm:[297,420]},// ~250 ppp (límit d'iPhone)
+  web:{W:1024,H:492,T:0,px:2048,label:'Imatge web'},
+  og:{W:1200,H:630,T:0,px:1200,label:'Miniatura'}
+};
+const FIELD_KEYS=['nota','etiqueta','kicker','xifra','titular','cos','dia','hora','lloc','f1g','f1t','f2g','f2t','f3g','f3t','font'];
+const FIELD_OF={dia:'bloc',hora:'bloc',lloc:'bloc',f1g:'files',f1t:'files',f2g:'files',f2t:'files',f3g:'files',f3t:'files'};
+
+function newSlide(tpl){return {tpl,texts:{va:Object.assign({},TPL[tpl].va),es:Object.assign({},TPL[tpl].es)},ph:null,custom:{va:{},es:{}}};}
+const S={fmt:'post',out:'png',lang:'va',edit:'va',bn:false,grain:false,logo:'normal',blurMode:false,blurR:80,
+  slides:[newSlide('nota')],cur:0,photoRect:null,ready:false};
+const slide=()=>S.slides[S.cur];
+const isCarousel=()=>S.slides.length>1;
+// Textos: si l'usuari no ha tocat un camp, segueix el text per defecte de la plantilla.
+function setTpl(sl,tpl){
+  for(const L of ['va','es'])for(const k of FIELD_KEYS){if(!sl.custom[L][k])delete sl.texts[L][k];}
+  sl.tpl=tpl;
+  for(const L of ['va','es'])for(const k in TPL[tpl][L])if(!sl.custom[L][k])sl.texts[L][k]=TPL[tpl][L][k];
+}
+const fmtOf=sl=>TPL[sl.tpl].fixed||S.fmt;
+
+// =============== DIBUIX ===============
+const cv=$('cv');const pctx=cv.getContext('2d');let ctx=pctx;
+let W=1080;let R=null;// context de la peça que es dibuixa
+const ANTON='Anton, Impact, sans-serif', SANS='"Open Sans", Arial, sans-serif';
+const RAT={};
+const MCTX=document.createElement('canvas').getContext('2d');
+function cap(fam){if(RAT[fam])return RAT[fam];const c=MCTX;c.font='400 100px '+fam;const m=c.measureText('H');const r=(m.actualBoundingBoxAscent||72)/100;if(S.ready)RAT[fam]=r;return r;}
+function setF(size,w,fam){ctx.font=(w||400)+' '+size+'px '+(fam||ANTON);}
+function tokenize(str){
+  const out=[];(str||'').split(/\n/).forEach((ln,li)=>{
+    if(li>0)out.push({br:true});
+    ln.split('*').forEach((p,pi)=>{const hi=pi%2===1;p.split(/\s+/).filter(Boolean).forEach(w=>out.push({t:w.toUpperCase(),hi}));});
+  });return out;
+}
+function wrap(toks,size,maxW){
+  setF(size);const sp=ctx.measureText(' ').width;const lines=[];let cur=[],cw=0;
+  for(const tk of toks){
+    if(tk.br){lines.push({w:cw,words:cur});cur=[];cw=0;continue;}
+    const w=ctx.measureText(tk.t).width;
+    if(cur.length&&cw+sp+w>maxW){lines.push({w:cw,words:cur});cur=[];cw=0;}
+    cur.push({t:tk.t,hi:tk.hi,w});cw+=(cur.length>1?sp:0)+w;
+  }
+  if(cur.length)lines.push({w:cw,words:cur});
+  return lines.filter(l=>l.words.length);
+}
+const textH=(n,s,lh)=>n?cap(ANTON)*s+(n-1)*s*lh:0;
+function fit(toks,maxW,maxH,maxS,minS,lh,maxL){
+  let last=null;
+  for(let s=maxS;s>=minS;s-=2){const lines=wrap(toks,s,maxW);const h=textH(lines.length,s,lh);last={s,lines,h,ok:false};
+    if(lines.length<=maxL&&h<=maxH&&lines.every(l=>l.w<=maxW+0.5)){last.ok=true;return last;}}
+  return last;
+}
+function drawLines(lines,x,top,s,lh,col,hiCol){
+  setF(s);const sp=ctx.measureText(' ').width;const ch=cap(ANTON)*s;
+  lines.forEach((l,i)=>{let cx=x;const by=top+ch+i*s*lh;l.words.forEach(w=>{ctx.fillStyle=w.hi?hiCol:col;ctx.fillText(w.t,cx,by);cx+=w.w+sp;});});
+}
+// Titular en caixes (portada de carrusel, miniatura): una caixa per línia; la línia amb paraula destacada, en roig.
+function drawBoxed(lines,x,top,s,lh,boxCol,hiBox,fg){
+  setF(s);const sp=ctx.measureText(' ').width;const ch=cap(ANTON)*s;const px=Math.round(s*.16),pv=Math.round(s*.17);
+  lines.forEach((l,i)=>{const by=top+ch+i*s*lh;const hi=l.words.some(w=>w.hi);
+    ctx.fillStyle=hi?hiBox:boxCol;ctx.fillRect(x,by-ch-pv,l.w+px*2,ch+pv*2);
+    let cx=x+px;ctx.fillStyle=fg;l.words.forEach(w=>{ctx.fillText(w.t,cx,by);cx+=w.w+sp;});});
+}
+const boxedH=(n,s,lh)=>n?cap(ANTON)*s+(n-1)*s*lh+Math.round(s*.17)*2:0;
+function spacedW(t,sp){let w=0;for(const c of t)w+=ctx.measureText(c).width+sp;return Math.max(0,w-sp);}
+function drawSpaced(t,x,y,sp){for(const c of t){ctx.fillText(c,x,y);x+=ctx.measureText(c).width+sp;}}
+function wrapSans(text,size,weight,maxW){
+  setF(size,weight,SANS);const out=[];
+  for(const para of (text||'').split(/\n/)){let line='';for(const w of para.split(/\s+/).filter(Boolean)){const t=line?line+' '+w:w;if(line&&ctx.measureText(t).width>maxW){out.push(line);line=w;}else line=t;}if(line)out.push(line);}
+  return out;
+}
+function kicker(text,x,top,col,size,maxW){
+  const t=(text||'').trim().toUpperCase();if(!t)return 0;let s=size||24;
+  for(;s>14;s--){setF(s,800,SANS);if(spacedW(t,s*.14)<=maxW)break;}
+  setF(s,800,SANS);ctx.fillStyle=col;const ch=cap(SANS)*s;drawSpaced(t,x,top+ch,s*.14);return ch;
+}
+function etiqueta(text,x,top,bg,fg,size,measureOnly,maxW){
+  const t=(text||'').trim().toUpperCase();if(!t)return {w:0,h:0};
+  const s=size||44;setF(s);const ch=cap(ANTON)*s;const px=Math.round(s*.55),py=Math.round(s*.4);
+  const w=Math.min(maxW||W-120,ctx.measureText(t).width+px*2),h=Math.round(ch+py*2);
+  if(!measureOnly){ctx.fillStyle=bg;ctx.fillRect(x,top,w,h);ctx.fillStyle=fg;ctx.fillText(t,x+px,top+py+ch,w-px*2);}
+  return {w,h};
+}
+// Requadre de text opcional (aclariments, avisos)
+function noteMeasure(){
+  if(!R.slide.noteOn)return null;const t=(R.tx.nota||'').replace(/\*/g,'').trim();if(!t)return null;
+  let s=30,lines=[];for(;;s-=2){lines=wrapSans(t,s,700,W-120-48);if(lines.length<=5||s<=22)break;}
+  const h=Math.round(cap(SANS)*s+(lines.length-1)*s*1.35+48);return {s,lines,h,over:lines.length>5};
+}
+function noteDraw(nm,top,border){
+  ctx.fillStyle=C.blanc;ctx.fillRect(60,top,W-120,nm.h);
+  if(border||R.P.bn){ctx.strokeStyle=C.negre;ctx.lineWidth=4;ctx.strokeRect(62,top+2,W-124,nm.h-4);}
+  setF(nm.s,700,SANS);ctx.fillStyle=C.negre;nm.lines.slice(0,5).forEach((l,i)=>ctx.fillText(l,84,top+24+cap(SANS)*nm.s+i*nm.s*1.35));
+}
+// col·loca el requadre damunt de «bottom» i retorna el nou límit
+function noteAt(bottom,border,gap,warn){const nm=noteMeasure();if(!nm)return bottom;noteDraw(nm,bottom-nm.h,border);
+  if(nm.over)warn.push("El text del requadre és massa llarg: cinc línies com a màxim.");return bottom-nm.h-(gap||28);}
+const labelMax=()=>W-120-(R.n>1?170:0);
+// Paleta: normal o blanc i negre per a fotocopiar
+function palette(bn){
+  if(!bn)return {bn:false,paper:C.blanc,red:C.roig,black:C.negre,onRed:C.blanc,onBlack:C.blanc,ink:C.negre,hiLight:C.roig,hiRed:C.negre,hiBlack:C.roig,
+    lblBg:C.groc,lblFg:C.negre,lbl2Bg:C.roig,lbl2Fg:C.blanc,meta:C.meta,filet:C.filet,boxLbl:C.roig,boxTit:C.negre,boxHi:C.roig,grad:'228,33,39'};
+  return {bn:true,paper:C.blanc,red:C.blanc,black:C.blanc,onRed:C.negre,onBlack:C.negre,ink:C.negre,hiLight:C.negre,hiRed:C.negre,hiBlack:C.negre,
+    lblBg:C.negre,lblFg:C.blanc,lbl2Bg:C.negre,lbl2Fg:C.blanc,meta:C.negre,filet:C.negre,boxLbl:C.negre,boxTit:C.negre,boxHi:C.negre,grad:'255,255,255'};
+}
+// Quin logo: trama en B/N; temàtic si se n'ha triat; si no, color sobre clar i negre sobre roig.
+function logoFor(bg){if(R.P.bn)return 'trama';if(S.logo!=='normal')return S.logo;return bg==='red'?'negre':'color';}
+// Peu: filet + cgtcastello.org + logo
+function peu(col,logo,o){
+  o=o||{};const lh=o.lh||96,lw=lh*LOGO_RATIO,ws=o.ws||40,m=o.m||60,mb=o.mb||48;
+  const ly=R.H-R.B-mb-lh;const ry=ly-22;
+  if(!o.noRule){ctx.fillStyle=col;ctx.fillRect(m,ry,W-m*2,4);}
+  setF(ws);ctx.fillStyle=col;drawSpaced('CGTCASTELLO.ORG',m,ly+lh/2+cap(ANTON)*ws/2,ws*.02);
+  if(LOGOS[logo])ctx.drawImage(LOGOS[logo],W-m-lw,ly,lw,lh);
+  return {ruleY:ry,logoY:ly,top:ry};
+}
+// Peu sobre fons fosc o foto: banda blanca a tot l'ample (en B/N, peu normal).
+function peuBand(o){
+  o=o||{};const lh=o.lh||96,mb=o.mb||48;const ly=R.H-R.B-mb-lh;const bandTop=ly-(o.pad||36);
+  if(R.P.bn)return peu(C.negre,'trama',o);
+  ctx.fillStyle=C.blanc;ctx.fillRect(0,bandTop,W,R.H-bandTop);
+  peu(C.negre,logoFor('light'),Object.assign({noRule:true},o));
+  return {top:bandTop};
+}
+
+// ---- Foto ----
+function phSrc(ph,blurred){
+  if(!R.P.bn)return blurred?ph.blur:ph.src;
+  if(!ph.gray){ph.gray=grayCopy(ph.src);ph.grayBlur=grayCopy(ph.blur);}
+  return blurred?ph.grayBlur:ph.gray;
+}
+function grayCopy(src){
+  const c=document.createElement('canvas');c.width=src.width;c.height=src.height;const g=c.getContext('2d');g.drawImage(src,0,0);
+  const d=g.getImageData(0,0,c.width,c.height),a=d.data;
+  for(let i=0;i<a.length;i+=4){let v=.299*a[i]+.587*a[i+1]+.114*a[i+2];v=Math.max(0,Math.min(255,(v-128)*1.25+128));a[i]=a[i+1]=a[i+2]=v;}
+  g.putImageData(d,0,0);return c;
+}
+function photoMap(ph,dw,dh){const iw=ph.src.width,ih=ph.src.height;const scale=Math.max(dw/iw,dh/ih)*ph.zoom;const sw=dw/scale,sh=dh/scale;return {scale,sx:(iw-sw)*ph.fx,sy:(ih-sh)*ph.fy,sw,sh,iw,ih};}
+function drawPhoto(dx,dy,dw,dh){
+  const ph=R.slide.ph;const m=photoMap(ph,dw,dh);
+  ctx.drawImage(phSrc(ph),m.sx,m.sy,m.sw,m.sh,dx,dy,dw,dh);
+  if(R.preview)S.photoRect={dx,dy,dw,dh,m};
+  if(ph.blurs.length){const bl=phSrc(ph,true);
+    ctx.save();ctx.beginPath();ctx.rect(dx,dy,dw,dh);ctx.clip();
+    for(const b of ph.blurs){const cx=dx+(b.u*m.iw-m.sx)*m.scale,cy=dy+(b.v*m.ih-m.sy)*m.scale,r=b.r*m.iw*m.scale;
+      ctx.save();ctx.beginPath();ctx.ellipse(cx,cy,r,r*1.25,0,0,Math.PI*2);ctx.clip();
+      ctx.drawImage(bl,0,0,bl.width,bl.height,dx-m.sx*m.scale,dy-m.sy*m.scale,m.iw*m.scale,m.ih*m.scale);ctx.restore();}
+    ctx.restore();}
+}
+function makeBlur(src){
+  const iw=src.width,ih=src.height,k=Math.max(iw,ih)/40;
+  const tiny=document.createElement('canvas');tiny.width=Math.max(4,Math.round(iw/k));tiny.height=Math.max(4,Math.round(ih/k));
+  const t=tiny.getContext('2d');t.imageSmoothingQuality='high';t.drawImage(src,0,0,tiny.width,tiny.height);
+  const mid=document.createElement('canvas');mid.width=tiny.width*3;mid.height=tiny.height*3;
+  const m=mid.getContext('2d');m.imageSmoothingQuality='high';m.drawImage(tiny,0,0,mid.width,mid.height);
+  const out=document.createElement('canvas');out.width=Math.round(iw/3);out.height=Math.round(ih/3);
+  const o=out.getContext('2d');o.imageSmoothingQuality='high';o.drawImage(mid,0,0,out.width,out.height);return out;
+}
+function placeholder(x,y,w,h){
+  ctx.fillStyle=C.linia;ctx.fillRect(x,y,w,h);
+  setF(Math.min(56,h/5));ctx.fillStyle=C.web;ctx.textAlign='center';ctx.fillText('PUJA UNA FOTO',x+w/2,y+h/2+16);ctx.textAlign='left';
+}
+let GRAIN=null;
+function grain(){
+  if(!GRAIN){GRAIN=document.createElement('canvas');GRAIN.width=GRAIN.height=220;const g=GRAIN.getContext('2d');const d=g.createImageData(220,220);
+    for(let i=0;i<d.data.length;i+=4){const v=Math.random()<.5?0:255;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=Math.random()*34;}g.putImageData(d,0,0);}
+  ctx.save();ctx.fillStyle=ctx.createPattern(GRAIN,'repeat');ctx.fillRect(0,0,W,R.H);ctx.restore();
+}
+
+// ---- Plantilles ----
+const RENDER={};
+RENDER.nota=function(tx,warn){
+  const {H,B,P}=R;ctx.fillStyle=P.paper;ctx.fillRect(0,0,W,H);
+  const ph=H-B-590;
+  if(R.slide.ph)drawPhoto(0,0,W,ph);else placeholder(0,0,W,ph);
+  const f=peu(P.ink,logoFor('light'));R.footTop=f.top;
+  const e=etiqueta(tx.etiqueta,60,0,P.lblBg,P.lblFg,44,true,labelMax());
+  const eTop=ph-Math.round(e.h/2);etiqueta(tx.etiqueta,60,eTop,P.lblBg,P.lblFg,44,false,labelMax());
+  let y=(e.h?eTop+e.h:ph)+30;
+  const kh=kicker(tx.kicker,60,y,P.ink,24,W-120);if(kh)y+=kh+26;
+  const lim=noteAt(f.ruleY-30-(R.n>1&&R.idx===0?90:0),true,30,warn);
+  const r=fit(tokenize(tx.titular),W-120,lim-y,82,54,1.02,4);
+  if(r){drawLines(r.lines,60,y,r.s,1.02,P.ink,P.hiLight);if(!r.ok)warn.push("El titular és massa llarg: escurça'l (màxim quatre línies).");}
+};
+RENDER.conv=function(tx,warn){
+  const {H,T,P,lang}=R;ctx.fillStyle=P.red;ctx.fillRect(0,0,W,H);
+  if(R.slide.ph){drawPhoto(0,0,W,H);
+    const g=ctx.createLinearGradient(0,H*.28,0,H*.66);g.addColorStop(0,'rgba('+P.grad+',0)');g.addColorStop(1,'rgba('+P.grad+',1)');
+    ctx.fillStyle=g;ctx.fillRect(0,H*.28,W,H*.38);ctx.fillStyle=P.red;ctx.fillRect(0,H*.66,W,H*.34+1);}
+  const e=etiqueta(tx.etiqueta,60,T+60,P.lblBg,P.lblFg,44,false,labelMax());
+  const f=peu(P.onRed,logoFor('red'));R.footTop=f.top;
+  let bottom=noteAt(f.ruleY-30-(R.n>1&&R.idx===0?90:0),false,16,warn);
+  const vals=[[STR[lang].dia,tx.dia],[STR[lang].hora,tx.hora],[STR[lang].lloc,tx.lloc]];
+  if(vals.some(v=>(v[1]||'').trim())){
+    const bh=112,top=bottom-bh;const ws=[230,200];ws.push(W-120-ws[0]-ws[1]-32);let x=60;
+    vals.forEach((v,i)=>{
+      ctx.fillStyle=C.blanc;ctx.fillRect(x,top,ws[i],bh);
+      if(P.bn){ctx.strokeStyle=C.negre;ctx.lineWidth=4;ctx.strokeRect(x+2,top+2,ws[i]-4,bh-4);}
+      setF(18,800,SANS);ctx.fillStyle=P.boxLbl;drawSpaced(v[0].toUpperCase(),x+20,top+20+cap(SANS)*18,18*.16);
+      const t=(v[1]||'').trim().toUpperCase();let s=48;setF(s);while(s>24&&ctx.measureText(t).width>ws[i]-40){s-=2;setF(s);}
+      ctx.fillStyle=C.negre;ctx.fillText(t,x+20,top+bh-22);x+=ws[i]+16;});
+    bottom=top-30;
+  }
+  const kh=(tx.kicker||'').trim()?cap(SANS)*24+22:0;
+  const minTop=T+60+(e.h||0)+40+kh;
+  const r=fit(tokenize(tx.titular),W-120,bottom-minTop,150,84,.94,3);
+  if(r){const top=bottom-r.h;drawLines(r.lines,60,top,r.s,.94,P.onRed,P.hiRed);kicker(tx.kicker,60,top-kh,P.onRed,24,W-120);
+    if(!r.ok)warn.push('El titular de la convocatòria ha de ser de dues o tres paraules: ara no hi cap.');}
+};
+RENDER.cita=function(tx,warn){
+  const {H,T,P}=R;ctx.fillStyle=P.red;ctx.fillRect(0,0,W,H);
+  setF(320);const m=ctx.measureText('«');const asc=m.actualBoundingBoxAscent||150,desc=m.actualBoundingBoxDescent||0;
+  ctx.fillStyle=P.hiRed;ctx.fillText('«',54,T+60+asc);
+  let y=T+60+asc+desc+48;
+  const f=peu(P.onRed,logoFor('red'));R.footTop=f.top;
+  const kh=(tx.kicker||'').trim()?cap(SANS)*24+34:0;
+  const lim=noteAt(f.ruleY-40-(R.n>1&&R.idx===0?90:0),false,40,warn);
+  const r=fit(tokenize(tx.titular),W-120,lim-kh-y,118,66,1.0,4);
+  if(r){drawLines(r.lines,60,y,r.s,1.0,P.onRed,P.hiRed);y+=r.h+34;if(!r.ok)warn.push('El lema és massa llarg: millor una frase que es puga cridar (màxim quatre línies).');}
+  kicker(tx.kicker,60,y,P.hiRed,24,W-120);
+};
+RENDER.dada=function(tx,warn){
+  const {H,T,P}=R;ctx.fillStyle=P.black;ctx.fillRect(0,0,W,H);
+  const e=etiqueta(tx.etiqueta,60,T+60,P.lbl2Bg,P.lbl2Fg,38,false,labelMax());
+  let y=T+60+(e.h||0)+(e.h?30:0);
+  const kh=kicker(tx.kicker,60,y,P.meta,24,W-120);if(kh)y+=kh;
+  const f=peuBand();R.footTop=f.top;
+  let bottom=noteAt(f.top-44-(R.n>1&&R.idx===0?90:0),false,36,warn);
+  const ft=(tx.font||'').trim();
+  if(ft){let s=20;setF(s,400,SANS);while(s>14&&ctx.measureText(ft).width>W-120){s--;setF(s,400,SANS);}ctx.fillStyle=P.meta;ctx.fillText(ft,60,bottom);bottom-=cap(SANS)*s+34;}
+  else warn.push('Falta la font de la dada: les dades sempre van amb font.');
+  const sub=fit(tokenize(tx.titular),W-120,320,72,44,1.0,3);
+  if(sub&&sub.lines.length){const top=bottom-sub.h;drawLines(sub.lines,60,top,sub.s,1.0,P.onBlack,P.hiBlack);bottom=top-40;if(!sub.ok)warn.push('La frase sota la xifra és massa llarga.');}
+  const xt=tokenize(tx.xifra);
+  if(xt.length){const r=fit(xt,W-120,Math.max(120,bottom-y-40),340,140,.95,1);
+    if(r){drawLines(r.lines,56,bottom-r.h,r.s,.95,P.onBlack,P.hiBlack);if(!r.ok)warn.push('La xifra és massa llarga: posa només el número.');}}
+};
+RENDER.comunicat=function(tx,warn){
+  const {H,T,P}=R;ctx.fillStyle=P.black;ctx.fillRect(0,0,W,H);
+  const e=etiqueta(tx.etiqueta,60,T+60,P.lblBg,P.lblFg,44,false,labelMax());
+  let y=T+60+(e.h||0)+(e.h?40:0);
+  const kh=kicker(tx.kicker,60,y,P.meta,24,W-120);if(kh)y+=kh+28;
+  const f=peuBand();R.footTop=f.top;
+  const bottom=noteAt(f.top-50-(R.n>1&&R.idx===0?90:0),false,40,warn);
+  let cosLines=[],cs=31;
+  if((tx.cos||'').trim()){for(cs=31;cs>=24;cs--){cosLines=wrapSans(tx.cos,cs,700,W-120);if(cosLines.length<=6)break;}}
+  const cosH=cosLines.length?cap(SANS)*cs+(cosLines.length-1)*cs*1.35+40:0;
+  const r=fit(tokenize(tx.titular),W-120,bottom-y-cosH,110,60,1.0,4);
+  if(r){drawLines(r.lines,60,y,r.s,1.0,P.onBlack,P.hiBlack);y+=r.h+40;if(!r.ok)warn.push("El titular és massa llarg: escurça'l o retalla el text de suport.");}
+  if(cosLines.length){setF(cs,700,SANS);ctx.fillStyle=P.onBlack;cosLines.forEach((l,i)=>ctx.fillText(l,60,y+cap(SANS)*cs+i*cs*1.35));
+    if(cosLines.length>6)warn.push('El text de suport és massa llarg: una o dues frases com a màxim.');}
+};
+RENDER.portada=function(tx,warn){
+  const {H,T,P,lang}=R;ctx.fillStyle=P.black;ctx.fillRect(0,0,W,H);
+  if(R.slide.ph)drawPhoto(0,0,W,H);
+  etiqueta(tx.etiqueta,60,T+60,P.lblBg,P.lblFg,44,false,labelMax());
+  const f=peuBand();R.footTop=f.top;
+  const bottom=noteAt(f.top-40-(R.n>1?90:0),false,28,warn);
+  const r=fit(tokenize(tx.titular),W-120-44,bottom-(T+60+140),136,76,1.34,4);
+  if(r){const h=boxedH(r.lines.length,r.s,1.34);drawBoxed(r.lines,60,bottom-h+Math.round(r.s*.17),r.s,1.34,P.boxTit,P.boxHi,C.blanc);
+    if(!r.ok)warn.push('El titular de portada és massa llarg: màxim quatre línies curtes.');}
+  if(!R.slide.ph)warn.push('La portada llueix més amb una foto a sang.');
+};
+RENDER.balanc=function(tx,warn){
+  const {H,T,P}=R;ctx.fillStyle=P.black;ctx.fillRect(0,0,W,H);
+  let y=T+60+(R.n>1?100:0);// deixa lloc al comptador
+  const kh=kicker(tx.kicker,60,y,P.meta,24,W-120);if(kh)y+=kh+26;
+  const f=peuBand();R.footTop=f.top;
+  const bottom=noteAt(f.top-40-(R.n>1&&R.idx===0?90:0),false,36,warn);
+  const rows=[1,2,3].map(i=>[tx['f'+i+'g']||'',tx['f'+i+'t']||'']).filter(r=>r[0].trim()||r[1].trim());
+  // mesura files
+  const gw=360,tw=W-120-gw-30;
+  const rowData=rows.map(([g,t])=>{let gs=104;setF(gs);const gt=g.trim().toUpperCase();while(gs>48&&ctx.measureText(gt).width>gw){gs-=4;setF(gs);}
+    const tl=wrapSans(t,31,700,tw);const th=tl.length?cap(SANS)*31+(tl.length-1)*31*1.35:0;const gh=gt?cap(ANTON)*gs:0;
+    return {gt,gs,tl,h:Math.max(gh,th)+22+30,gh,th};});
+  const rowsH=rowData.reduce((a,r)=>a+r.h,0);
+  const r=fit(tokenize(tx.titular),W-120,bottom-y-rowsH-30,82,52,1.02,3);
+  if(r){drawLines(r.lines,60,y,r.s,1.02,P.onBlack,P.hiBlack);y+=r.h+40;if(!r.ok)warn.push('Hi ha massa text: escurça el titular o les frases de les files.');}
+  for(const rd of rowData){
+    ctx.fillStyle=P.bn?C.negre:C.filet;ctx.fillRect(60,y,W-120,4);y+=4+22;
+    const mid=y+Math.max(rd.gh,rd.th)/2;
+    if(rd.gt){setF(rd.gs);ctx.fillStyle=P.bn?C.negre:C.roig;ctx.fillText(rd.gt,60,mid+rd.gh/2);}
+    setF(31,700,SANS);ctx.fillStyle=P.onBlack;rd.tl.forEach((l,i)=>ctx.fillText(l,60+gw+30,mid-rd.th/2+cap(SANS)*31+i*31*1.35));
+    y+=Math.max(rd.gh,rd.th)+30;
+  }
+};
+RENDER.web=function(tx,warn){
+  const {H,P}=R;ctx.fillStyle=P.black;ctx.fillRect(0,0,W,H);
+  if(R.slide.ph)drawPhoto(0,0,W,H);else placeholder(0,0,W,H);
+  const e=etiqueta(tx.etiqueta,0,0,P.lblBg,P.lblFg,40,true);
+  etiqueta(tx.etiqueta,48,H-48-e.h,P.lblBg,P.lblFg,40);
+};
+RENDER.og=function(tx,warn){
+  const {H,P}=R;ctx.fillStyle=P.black;ctx.fillRect(0,0,W,H);
+  if(R.slide.ph)drawPhoto(0,0,W,H);
+  etiqueta(tx.etiqueta,48,44,P.lblBg,P.lblFg,34,false,W-96);
+  const f=peuBand({lh:64,ws:30,m:48,mb:26,pad:22});
+  const bottom=f.top-30;
+  const r=fit(tokenize(tx.titular),W-96-30,bottom-140,92,50,1.34,2);
+  if(r){const h=boxedH(r.lines.length,r.s,1.34);drawBoxed(r.lines,48,bottom-h+Math.round(r.s*.17),r.s,1.34,P.boxTit,P.boxHi,C.blanc);
+    if(!r.ok)warn.push('Per a la miniatura, un titular curt: dues línies com a màxim.');}
+};
+// Comptador «2/6» i «Llisca →»
+function carouselMarks(){
+  const {T,P,lang}=R;
+  const t=(R.idx+1)+'/'+R.n;setF(40);const tw=ctx.measureText(t).width;const ch=cap(ANTON)*40;
+  ctx.fillStyle=P.bn?C.negre:C.negre;ctx.fillRect(W-60-tw-36,T+60,tw+36,ch+28);ctx.fillStyle=C.blanc;ctx.fillText(t,W-60-tw-18,T+60+14+ch);
+  if(R.idx===0&&R.footTop){const l=STR[lang].llisca.toUpperCase();setF(40);const lw=spacedW(l,1.6);
+    const top=R.footTop-24-ch-28;ctx.fillStyle=C.negre;ctx.fillRect(W-60-lw-36,top,lw+36,ch+28);ctx.fillStyle=P.bn?C.blanc:C.groc;drawSpaced(l,W-60-lw-18,top+14+ch,1.6);}
+}
+
+function paint(target,scale,idx,lang,preview){
+  const sl=S.slides[idx];const f=FMT[fmtOf(sl)];W=f.W;
+  const w=Math.round(W*scale),h=Math.round(f.H*scale);
+  if(target.width!==w)target.width=w;if(target.height!==h)target.height=h;
+  ctx=target.getContext('2d');ctx.setTransform(scale,0,0,scale,0,0);ctx.textBaseline='alphabetic';ctx.textAlign='left';
+  R={slide:sl,tx:sl.texts[lang],idx,n:S.slides.length,lang,H:f.H,T:f.T,B:f.T,P:palette(S.bn),preview:!!preview,footTop:0};
+  const warn=[];
+  RENDER[sl.tpl](sl.texts[lang],warn);
+  if(R.n>1)carouselMarks();
+  if(S.grain)grain();
+  ctx.setTransform(1,0,0,1,0,0);ctx=pctx;
+  return warn;
+}
+function render(){
+  if(!S.ready)return;
+  S.photoRect=null;
+  const warn=paint(cv,1,S.cur,S.edit,true);
+  const sl=slide();
+  if(sl.ph&&TPL[sl.tpl].photo&&!sl.ph.blurs.length)warn.push('Hi ha gent a la foto? Difumina les cares abans de publicar.');
+  if(S.lang==='both'){const miss=missingES();if(miss.length)warn.push('Falta el text en castellano a '+miss.join(', ')+'.');}
+  $('warn').innerHTML=warn.map(w=>'<p>'+esc(w)+'</p>').join('');
+}
+let raf=0;function schedule(){cancelAnimationFrame(raf);raf=requestAnimationFrame(render);}
+function missingES(){
+  const out=[];S.slides.forEach((sl,i)=>{const t=TPL[sl.tpl];
+    const keys=FIELD_KEYS.filter(k=>t.fields.includes(FIELD_OF[k]||k)||(k==='nota'&&sl.noteOn));
+    if(keys.some(k=>(sl.texts.va[k]||'').trim()&&!(sl.texts.es[k]||'').trim()))out.push(isCarousel()?'la diapositiva '+(i+1):'la peça');});
+  return out;
+}
+
+// =============== INTERFÍCIE ===============
+function syncUI(){
+  const sl=slide(),t=TPL[sl.tpl],car=isCarousel();
+  // plantilles
+  $('tplSeg').innerHTML=TPL_ORDER.map(k=>'<button data-tpl="'+k+'" aria-pressed="'+(k===sl.tpl)+'"'+(car&&TPL[k].fixed?' disabled':'')+'>'+esc(TPL[k].name)+'</button>').join('');
+  $('tplSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{setTpl(slide(),b.dataset.tpl);afterChange();});
+  // formats
+  $('fmtBox').classList.toggle('hide',!!t.fixed);
+  document.querySelectorAll('#fmtSeg button').forEach(b=>{b.setAttribute('aria-pressed',b.dataset.fmt===S.fmt);b.disabled=car&&FMT[b.dataset.fmt].mm;});
+  const f=FMT[fmtOf(sl)];
+  $('fmtHint').textContent=t.fixed?'Mida fixa: '+f.W+'×'+f.H+' px.':(car?'Carrusel: només post o story.':'');
+  // foto
+  $('fsFoto').classList.toggle('hide',!t.photo);
+  $('photoCtl').classList.toggle('hide',!sl.ph);
+  if(sl.ph){$('zoom').value=sl.ph.zoom;$('fx').value=sl.ph.fx;$('fy').value=sl.ph.fy;}
+  if(!t.photo||!sl.ph)setBlurMode(false);
+  // camps
+  document.querySelectorAll('[data-for]').forEach(el=>el.classList.toggle('hide',!t.fields.includes(el.dataset.for)));
+  $('titLbl').textContent=t.titLbl||'Titular';
+  $('noteBox').classList.toggle('hide',!!t.fixed);$('noteOn').checked=!!sl.noteOn;$('noteField').classList.toggle('hide',!sl.noteOn);
+  document.querySelectorAll('[data-k]').forEach(inp=>{const k=inp.dataset.k;inp.value=sl.texts[S.edit][k]||'';
+    if(!inp.dataset.ph)inp.dataset.ph=inp.placeholder||'';inp.placeholder=S.edit==='es'&&sl.texts.va[k]?sl.texts.va[k]:inp.dataset.ph;});
+  document.querySelectorAll('#langSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===S.lang));
+  document.querySelectorAll('#editSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.edit===S.edit));
+  $('editLangBox').classList.toggle('hide',S.lang!=='both');
+  document.querySelectorAll('#logoSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.logo===S.logo));
+  // diapositives
+  $('slides').innerHTML=S.slides.map((s,i)=>'<button data-i="'+i+'" aria-current="'+(i===S.cur)+'">'+(i+1)+' · '+esc(TPL[s.tpl].name)+'</button>').join('')+
+    (TPL[sl.tpl].fixed?'':'<button class="add" id="slAdd">+ Diapositiva</button>');
+  $('slides').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{S.cur=+b.dataset.i;afterChange();});
+  if($('slAdd'))$('slAdd').onclick=addSlide;
+  $('slideTools').classList.toggle('hide',!car);
+  syncOut();syncLink();
+}
+function afterChange(){
+  const sl=slide();
+  if(isCarousel()&&FMT[S.fmt].mm)S.fmt='post';
+  if(FMT[fmtOf(sl)].mm&&!isCarousel())S.out='pdf';
+  syncUI();schedule();updateHash();
+}
+function addSlide(){
+  if(S.slides.length>=10){toast('Màxim deu diapositives.');return;}
+  if(FMT[S.fmt].mm)S.fmt='post';
+  const prev=slide();const tpl=S.slides.length===1&&prev.tpl!=='portada'?'balanc':(prev.tpl==='portada'?'balanc':prev.tpl);
+  S.slides.splice(S.cur+1,0,newSlide(tpl));S.cur++;
+  if(S.slides.length===2)toast('Ara és un carrusel: cada diapositiva porta el comptador.');
+  afterChange();
+}
+$('slLeft').onclick=()=>{if(S.cur>0){const a=S.slides;[a[S.cur-1],a[S.cur]]=[a[S.cur],a[S.cur-1]];S.cur--;afterChange();}};
+$('slRight').onclick=()=>{const a=S.slides;if(S.cur<a.length-1){[a[S.cur+1],a[S.cur]]=[a[S.cur],a[S.cur+1]];S.cur++;afterChange();}};
+$('slDup').onclick=()=>{if(S.slides.length>=10)return;const s=slide();const c=newSlide(s.tpl);c.texts=JSON.parse(JSON.stringify(s.texts));c.custom=JSON.parse(JSON.stringify(s.custom));c.noteOn=s.noteOn;c.ph=s.ph?Object.assign({},s.ph,{blurs:s.ph.blurs.slice()}):null;S.slides.splice(S.cur+1,0,c);S.cur++;afterChange();};
+$('slDel').onclick=()=>{if(S.slides.length<2)return;S.slides.splice(S.cur,1);S.cur=Math.max(0,S.cur-1);afterChange();};
+
+document.querySelectorAll('#fmtSeg button').forEach(b=>b.onclick=()=>{if(b.disabled)return;S.fmt=b.dataset.fmt;S.out=FMT[S.fmt].mm?'pdf':(S.out==='pdf'?'png':S.out);afterChange();});
+document.querySelectorAll('#langSeg button').forEach(b=>b.onclick=()=>{S.lang=b.dataset.lang;S.edit=S.lang==='both'?S.edit:S.lang;afterChange();});
+document.querySelectorAll('#editSeg button').forEach(b=>b.onclick=()=>{S.edit=b.dataset.edit;afterChange();});
+document.querySelectorAll('#logoSeg button').forEach(b=>b.onclick=()=>{S.logo=b.dataset.logo;afterChange();});
+document.querySelectorAll('[data-k]').forEach(inp=>inp.addEventListener('input',()=>{const sl=slide(),k=inp.dataset.k;sl.texts[S.edit][k]=inp.value;sl.custom[S.edit][k]=true;schedule();syncLink();}));
+['zoom','fx','fy'].forEach(k=>$(k).addEventListener('input',e=>{const ph=slide().ph;if(ph){ph[k]=parseFloat(e.target.value);schedule();}}));
+$('blurR').addEventListener('input',e=>{S.blurR=parseFloat(e.target.value);});
+$('noteOn').addEventListener('change',e=>{slide().noteOn=e.target.checked;syncUI();schedule();if(e.target.checked)setTimeout(()=>document.querySelector('[data-k=nota]').focus(),50);});
+$('grain').addEventListener('change',e=>{S.grain=e.target.checked;schedule();});
+$('bn').addEventListener('change',e=>{S.bn=e.target.checked;if(S.bn&&!FMT[S.fmt].mm)toast('Versió B/N: pensada per a A4 o A3 i fotocopiadora.');schedule();});
+function setBlurMode(on){S.blurMode=on;$('blurMode').setAttribute('aria-pressed',on);cv.classList.toggle('blurring',on);
+  $('blurHint').innerHTML=on?'<b>Toca cada cara</b> a la previsualització. Quan acabes, torna a prémer el botó.':'Activa <b>Difuminar cares</b> i toca cada cara a la previsualització.';}
+$('blurMode').onclick=()=>setBlurMode(!S.blurMode);
+$('blurUndo').onclick=()=>{const ph=slide().ph;if(ph){ph.blurs.pop();schedule();}};
+$('blurClear').onclick=()=>{const ph=slide().ph;if(ph){ph.blurs=[];schedule();}};
+$('rmPhoto').onclick=()=>{slide().ph=null;$('file').value='';setBlurMode(false);syncUI();schedule();};
+cv.addEventListener('pointerdown',e=>{
+  const ph=slide().ph;if(!S.blurMode||!ph||!S.photoRect)return;
+  const r=cv.getBoundingClientRect();const px=(e.clientX-r.left)*cv.width/r.width,py=(e.clientY-r.top)*cv.height/r.height;
+  const p=S.photoRect,m=p.m;if(px<p.dx||py<p.dy||px>p.dx+p.dw||py>p.dy+p.dh)return;
+  e.preventDefault();ph.blurs.push({u:(m.sx+(px-p.dx)/m.scale)/m.iw,v:(m.sy+(py-p.dy)/m.scale)/m.ih,r:S.blurR/m.scale/m.iw});schedule();
+});
+$('file').addEventListener('change',async e=>{
+  const f=e.target.files&&e.target.files[0];if(!f)return;const url=URL.createObjectURL(f);
+  try{const img=await loadImg(url);const k=Math.min(1,2400/Math.max(img.naturalWidth,img.naturalHeight));
+    const c=document.createElement('canvas');c.width=Math.round(img.naturalWidth*k);c.height=Math.round(img.naturalHeight*k);
+    const g=c.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(img,0,0,c.width,c.height);
+    slide().ph={src:c,blur:makeBlur(c),blurs:[],zoom:1,fx:.5,fy:.5};
+    syncUI();schedule();toast('Foto carregada. Ara difumina les cares.');
+  }catch(err){toast("No s'ha pogut obrir la imatge.");}
+  finally{URL.revokeObjectURL(url);e.target.value='';}
+});
+let tt=0;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),3200);}
+
+// =============== EXPORTACIÓ ===============
+function loadScript(src,check){return new Promise((res,rej)=>{if(check())return res(check());const sc=document.createElement('script');sc.src=src;sc.onload=()=>check()?res(check()):rej(new Error(src));sc.onerror=rej;document.head.appendChild(sc);});}
+const getJsPDF=()=>loadScript('vendor/jspdf.umd.min.js',()=>window.jspdf&&window.jspdf.jsPDF);
+const getJSZip=()=>loadScript('vendor/jszip.min.js',()=>window.JSZip);
+const toBlob=(c,type,q)=>new Promise(r=>c.toBlob(r,type,q));
+function jobs(){const langs=S.lang==='both'?['va','es']:[S.lang];const out=[];
+  S.slides.forEach((sl,i)=>langs.forEach(L=>out.push({i,L})));return out;}
+const slug=s=>(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
+function baseName(){const sl=S.slides[0];const t=(sl.texts[S.lang==='es'?'es':'va'].titular||TPL[sl.tpl].name).replace(/\*/g,'');return 'cgt-castello-'+(slug(t)||sl.tpl);}
+async function canvasFor(j){const sl=S.slides[j.i];const f=FMT[fmtOf(sl)];const off=document.createElement('canvas');paint(off,f.px/f.W,j.i,j.L,false);return {off,f};}
+async function buildFile(){
+  const js=jobs();const ext=S.out;const multi=js.length>1;
+  const nameOf=j=>(isCarousel()?String(j.i+1).padStart(2,'0')+'-'+S.slides[j.i].tpl:S.slides[j.i].tpl)+(S.lang==='both'?'-'+j.L:'');
+  if(ext==='pdf'){
+    const J=await getJsPDF();let doc=null;
+    for(const j of js){const {off,f}=await canvasFor(j);
+      const unit=f.mm?'mm':'px',pw=f.mm?f.mm[0]:off.width,ph=f.mm?f.mm[1]:off.height;
+      const jpg=new Uint8Array(await (await toBlob(off,'image/jpeg',.93)).arrayBuffer());
+      if(!doc){doc=new J({orientation:pw>ph?'landscape':'portrait',unit,format:[pw,ph],compress:true,hotfixes:['px_scaling']});}
+      else doc.addPage([pw,ph],pw>ph?'landscape':'portrait');
+      doc.addImage(jpg,'JPEG',0,0,pw,ph,undefined,'NONE');}
+    doc.setProperties({title:'CGT Castelló',creator:'CGT Castelló · Fes la teua imatge'});
+    return {blob:doc.output('blob'),name:baseName()+'.pdf'};
+  }
+  const type=ext==='jpg'?'image/jpeg':'image/png';
+  if(!multi){const {off}=await canvasFor(js[0]);return {blob:await toBlob(off,type,.92),name:baseName()+'-'+nameOf(js[0])+'.'+ext};}
+  const Z=await getJSZip();const zip=new Z();
+  for(const j of js){const {off}=await canvasFor(j);zip.file(nameOf(j)+'.'+ext,await toBlob(off,type,.92));}
+  return {blob:await zip.generateAsync({type:'blob'}),name:baseName()+'.zip'};
+}
+function syncOut(){
+  document.querySelectorAll('#outSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.out===S.out));
+  const n=jobs().length,f=FMT[fmtOf(slide())];const OUT={png:'PNG',jpg:'JPG',pdf:'PDF'}[S.out];
+  let label,hint;
+  if(n===1){label='Descarrega '+f.label+' en '+OUT;}
+  else if(S.out==='pdf'){label='Descarrega PDF ('+n+' pàgines)';}
+  else{label='Descarrega '+n+' imatges ('+OUT+' en ZIP)';}
+  if(f.mm)hint=S.out==='pdf'?'PDF a mida '+f.label+', llest per a imprimir.':'Per a imprimir, millor en PDF.';
+  else if(n>1)hint=S.out==='pdf'?'Un PDF amb totes les pàgines: útil per a revisar-lo o enviar-lo.':'Un ZIP amb una imatge per diapositiva i idioma, en ordre.';
+  else hint=S.out==='pdf'?'Per a xarxes, millor PNG o JPG.':'JPG pesa menys; PNG manté millor el text.';
+  $('dl').textContent=label;$('outHint').textContent=hint;
+}
+document.querySelectorAll('#outSeg button').forEach(b=>b.onclick=()=>{S.out=b.dataset.out;syncOut();});
+$('dl').onclick=async()=>{
+  if(S.lang==='both'){const miss=missingES();if(miss.length){toast('Falta el text en castellano a '+miss.join(', ')+'.');return;}}
+  const btn=$('dl'),old=btn.textContent;btn.disabled=true;btn.textContent='Generant…';
+  let file=null;try{file=await buildFile();}catch(err){console.error(err);}
+  btn.disabled=false;btn.textContent=old;
+  if(!file||!file.blob){toast("No s'ha pogut generar l'arxiu"+(S.out==='pdf'||jobs().length>1?' (torna-ho a provar).':'.'));return;}
+  if(window.claude&&typeof window.claude.use==='function'){
+    let d=null;try{d=await window.claude.use('downloads');}catch(_){}
+    if(d){try{await d.save({filename:file.name,data:file.blob});toast('Arxiu desat.');}catch(err){if(!err||err.code!=='declined')toast("No s'ha pogut desar"+(err&&err.message?': '+err.message:'.'));}return;}
+  }
+  const a=document.createElement('a');a.href=URL.createObjectURL(file.blob);a.download=file.name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},4000);
+};
+
+// =============== ENLLAÇOS (#plantilla-format) ===============
+const INSIDE_CLAUDE=!!window.claude;
+const QK={n:'nota',e:'etiqueta',k:'kicker',x:'xifra',t:'titular',c:'cos',dia:'dia',hora:'hora',lloc:'lloc',f:'font'};
+function hashName(){const sl=S.slides[0];return sl.tpl+(TPL[sl.tpl].fixed?'':'-'+S.fmt);}
+function updateHash(){if(isCarousel())return;try{history.replaceState(null,'','#'+hashName());}catch(_){}}
+function readHash(){
+  const m=(location.hash||'').slice(1).match(/^([a-z]+)(?:-([a-z0-9]+))?$/);if(!m||!TPL[m[1]])return false;
+  setTpl(S.slides[0],m[1]);S.cur=0;if(m[2]&&['post','story','a4','a3'].includes(m[2]))S.fmt=m[2];
+  if(FMT[S.fmt].mm)S.out='pdf';return true;
+}
+function readQuery(){
+  if(INSIDE_CLAUDE)return;let q;try{q=new URLSearchParams(location.search);}catch(_){return;}
+  const L=q.get('lang')==='es'?'es':(q.get('lang')==='both'?'both':'va');S.lang=L;S.edit=L==='both'?'va':L;
+  const sl=S.slides[0];
+  for(const [qk,k] of Object.entries(QK))for(const lang of ['va','es']){const v=q.get(qk+(lang==='es'?'_es':''));if(v!==null){sl.texts[lang][k]=v;sl.custom[lang][k]=true;if(k==='nota')sl.noteOn=true;}}
+  if(q.get('logo')&&TRI[q.get('logo')]&&!['color','negre','trama'].includes(q.get('logo')))S.logo=q.get('logo');
+  if(q.get('bn')==='1'){S.bn=true;$('bn').checked=true;}
+}
+function linkFor(){
+  const sl=S.slides[0];
+  if(INSIDE_CLAUDE)return '#'+hashName();
+  const base=location.href.split(/[?#]/)[0];const q=new URLSearchParams();
+  if($('linkTexts').checked){for(const [qk,k] of Object.entries(QK)){const t=TPL[sl.tpl];if(!t.fields.includes(FIELD_OF[k]||k)&&!(k==='nota'&&sl.noteOn))continue;
+      for(const lang of (S.lang==='both'?['va','es']:[S.lang])){const v=sl.texts[lang][k];if(v)q.set(qk+(lang==='es'?'_es':''),v);}}
+    if(S.lang!=='va')q.set('lang',S.lang);}
+  if(S.logo!=='normal')q.set('logo',S.logo);if(S.bn)q.set('bn','1');
+  const qs=q.toString();return base+(qs?'?'+qs:'')+'#'+hashName();
+}
+function syncLink(){
+  $('linkBox').textContent=linkFor();
+  $('linkHint').innerHTML=INSIDE_CLAUDE?'Dins de Claude, afig <code>'+esc('#'+hashName())+'</code> al final de l\'enllaç de la pàgina. Quan estiga a GitHub Pages, el botó copiarà l\'enllaç sencer, també amb els textos.':(isCarousel()?'L\'enllaç obri la primera diapositiva; el carrusel no es comparteix.':'');
+  $('linkTexts').parentElement.classList.toggle('hide',INSIDE_CLAUDE);
+}
+$('linkTexts').addEventListener('change',syncLink);
+$('copyLink').onclick=async()=>{const l=linkFor();try{await navigator.clipboard.writeText(l);toast('Enllaç copiat.');}catch(_){toast('No es pot copiar: selecciona el text de baix.');}};
+window.addEventListener('hashchange',()=>{if(readHash()){S.slides.length=1;afterChange();}});
+
+// =============== INICI ===============
+(async function(){
+  try{const vs=Object.keys(TRI);const imgs=await Promise.all(vs.map(v=>loadImg(svgURI(logoSVG(v)))));vs.forEach((v,i)=>LOGOS[v]=imgs[i]);}catch(_){}
+  $('hdrLogo').src=svgURI(logoSVG('color'));
+  const sample='ÀÉÈÍÏÓÒÚÜÇ·Ñ«»→';
+  try{await Promise.all([document.fonts.load('400 100px Anton',sample),document.fonts.load('800 24px "Open Sans"',sample),document.fonts.load('700 24px "Open Sans"',sample),document.fonts.load('400 20px "Open Sans"',sample)]);}catch(_){}
+  readHash();readQuery();
+  S.ready=true;syncUI();setBlurMode(false);render();
+})();
+})();
+</script>
+</body>
+</html>
