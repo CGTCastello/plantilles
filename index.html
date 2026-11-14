@@ -11,10 +11,10 @@
   :root{--roig:#E42127;--negre:#111111;--groc:#E9E84C;--blanc:#fff;--paper:#EDEBE7;--gris:#5F5E59}
   *{box-sizing:border-box}
   body{margin:0;font-family:"Open Sans",Arial,sans-serif;background:var(--paper);color:var(--negre)}
-  header{background:var(--negre);color:var(--blanc);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  header{background:var(--blanc);color:var(--negre);border-bottom:4px solid var(--negre);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
   header h1{font-family:Anton,Impact,sans-serif;font-weight:400;text-transform:uppercase;font-size:clamp(18px,5vw,24px);line-height:1.15;margin:0;letter-spacing:.02em}
   header h1 span{display:inline-block;line-height:1;background:var(--groc);color:var(--negre);padding:2px 8px;margin-left:6px;vertical-align:1px}
-  header img{height:44px;display:block;background:#fff;padding:4px 6px}
+  header img{height:44px;display:block}
   .app{display:grid;gap:18px;padding:16px;max-width:1160px;margin:0 auto}
   @media(min-width:900px){.app{grid-template-columns:minmax(0,1fr) 410px;align-items:start}.preview{position:sticky;top:16px}}
   .stage{display:flex;justify-content:center;background:#d8d5cf;padding:12px}
